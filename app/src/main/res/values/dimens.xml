@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="virtual_gift_item_collapsed">50dp</dimen>
+    <dimen name="virtual_gift_item_expanded">100dp</dimen>
+    <dimen name="virtual_gift_container_expanded">250dp</dimen>
+    <dimen name="virtual_gift_item_margin">5dp</dimen>
+    <dimen name="virtual_gift_item_text_height">20dp</dimen>
+    <dimen name="divider_width">10dp</dimen>
+</resources>
