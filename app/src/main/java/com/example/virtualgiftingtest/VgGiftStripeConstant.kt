@@ -1,6 +1,6 @@
 package com.example.virtualgiftingtest
 
-object Constants {
+object VgGiftStripeConstant {
     const val DISMISS_THRESHOLD = 0.55f
     const val CROSS_FADE_THRESHOLD = 0.70f
     const val DEFAULT_COLUMN_COUNT = 4

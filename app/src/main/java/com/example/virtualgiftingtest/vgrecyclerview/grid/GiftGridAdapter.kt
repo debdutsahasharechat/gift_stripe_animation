@@ -1,14 +1,11 @@
 package com.example.virtualgiftingtest.vgrecyclerview.grid
 
 
-import android.graphics.Color
 import android.view.ViewGroup
-import com.example.virtualgiftingtest.Constants.DEFAULT_COLUMN_COUNT
-import com.example.virtualgiftingtest.Constants.DEFAULT_ROW_COUNT
+import com.example.virtualgiftingtest.VgGiftStripeConstant.DEFAULT_COLUMN_COUNT
+import com.example.virtualgiftingtest.VgGiftStripeConstant.DEFAULT_ROW_COUNT
 import com.example.virtualgiftingtest.GiftData
 import com.example.virtualgiftingtest.GiftGridContainerView
-import com.example.virtualgiftingtest.GiftGridViewPool
-import com.example.virtualgiftingtest.VirtualGiftListHelperInterface
 import com.example.virtualgiftingtest.vgrecyclerview.GiftRecyclerViewAdapter
 
 class GiftGridAdapter : GiftRecyclerViewAdapter<GiftGridViewHolder>() {
@@ -35,5 +32,4 @@ class GiftGridAdapter : GiftRecyclerViewAdapter<GiftGridViewHolder>() {
         this.data = data
         notifyDataSetChanged()
     }
-
 }

@@ -2,28 +2,20 @@ package com.example.virtualgiftingtest
 
 
 import android.content.Context
-import android.graphics.Color
-import android.graphics.Point
 import android.util.AttributeSet
 import android.view.*
-import android.widget.FrameLayout
-import android.widget.GridLayout
 import androidx.core.view.updateLayoutParams
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.widget.ViewPager2
-import com.example.virtualgiftingtest.Constants.DEFAULT_COLUMN_COUNT
-import com.example.virtualgiftingtest.Constants.DEFAULT_ROW_COUNT
-import com.example.virtualgiftingtest.Constants.DISMISS_THRESHOLD
+import com.example.virtualgiftingtest.VgGiftStripeConstant.DEFAULT_COLUMN_COUNT
+import com.example.virtualgiftingtest.VgGiftStripeConstant.DEFAULT_ROW_COUNT
+import com.example.virtualgiftingtest.VgGiftStripeConstant.DISMISS_THRESHOLD
 import com.example.virtualgiftingtest.vgrecyclerview.grid.GiftGridAdapter
 import com.example.virtualgiftingtest.vgrecyclerview.grid.GiftGridViewHolder
 import com.example.virtualgiftingtest.vgrecyclerview.horizontal.GiftAdapter
 import com.example.virtualgiftingtest.vgrecyclerview.horizontal.GiftViewHolder
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlin.coroutines.CoroutineContext
 import kotlin.math.roundToInt
-import kotlin.properties.Delegates
 
 class VirtualGiftingListContainer @JvmOverloads constructor(
     context: Context,
@@ -62,13 +54,16 @@ class VirtualGiftingListContainer @JvmOverloads constructor(
 
     private val mapOfStartAndEndPoint = hashMapOf<String, Pair<GiftDimension, GiftDimension>>()
 
+    /************************* Helper variables ********************************/
+
+
     /************************* Initialization Part **********************************/
     init {
         clipChildren = false
         horizontalRecyclerView = RecyclerView(context).apply {
             layoutParams = LayoutParams(
                 LayoutParams.MATCH_PARENT,
-                CommonUtils.itemHeight(context, isExpanded = false)
+                VgGiftStripeUtils.itemHeight(context, isExpanded = false)
             ).apply {
                 gravity = Gravity.BOTTOM
             }
@@ -76,10 +71,11 @@ class VirtualGiftingListContainer @JvmOverloads constructor(
         }
         gridViewPager = ViewPager2(context).apply {
             layoutParams =
-                LayoutParams(LayoutParams.MATCH_PARENT, CommonUtils.viewPagerHeight(context))
+                LayoutParams(LayoutParams.MATCH_PARENT, VgGiftStripeUtils.viewPagerHeight(context))
             alpha = 0f
+            //visibility = View.INVISIBLE
         }
-        targetThreshold = CommonUtils.targetThreshold(context).toFloat()
+        targetThreshold = VgGiftStripeUtils.targetThreshold(context).toFloat()
         addView(gridViewPager)
         addView(horizontalRecyclerView)
     }
@@ -98,7 +94,7 @@ class VirtualGiftingListContainer @JvmOverloads constructor(
      * It will set up view pager
      */
     private fun setUpViewPager() {
-        val gridGiftData = giftData.chunked(size = CommonUtils.maxElements(column, rowCount))
+        val gridGiftData = giftData.chunked(size = VgGiftStripeUtils.maxElements(column, rowCount))
         gridAdapter.setData(gridGiftData)
         gridAdapter.column = column
         gridViewPager.adapter = gridAdapter
@@ -168,8 +164,8 @@ class VirtualGiftingListContainer @JvmOverloads constructor(
         val lastItemPosition = layoutManager.findLastVisibleItemPosition() + 1
         val topDeckLastItem = firstVisibleItem + column
         val restOfDecCount = (lastItemPosition - topDeckLastItem)
-        isAnimationPossible = (firstVisibleItem % CommonUtils.maxElements(column, rowCount) == 0)
-        val currentPage = firstVisibleItem.div(CommonUtils.maxElements(column, rowCount))
+        isAnimationPossible = (firstVisibleItem % VgGiftStripeUtils.maxElements(column, rowCount) == 0)
+        val currentPage = firstVisibleItem.div(VgGiftStripeUtils.maxElements(column, rowCount))
         if (currentPage != gridViewPager.currentItem) {
             gridViewPager.setCurrentItem(currentPage, false)
         }
@@ -189,8 +185,8 @@ class VirtualGiftingListContainer @JvmOverloads constructor(
                 (horizontalRecyclerView.findViewHolderForAdapterPosition(i)?.itemView?.y?.roundToInt()
                     ?: 0) + topInset
             width =
-                horizontalRecyclerView.findViewHolderForAdapterPosition(i)?.itemView?.width?.toFloat()
-                    ?: 0f
+                (horizontalRecyclerView.findViewHolderForAdapterPosition(i)?.itemView?.width?.toFloat()
+                    ?: 0f)
             height =
                 horizontalRecyclerView.findViewHolderForAdapterPosition(i)?.itemView?.height?.toFloat()
                     ?: 0f
@@ -233,9 +229,11 @@ class VirtualGiftingListContainer @JvmOverloads constructor(
             tempPoint = mapOfStartAndEndPoint[data.uniqueId]
             x = gridLayout?.getChildAt(i)?.x?.roundToInt() ?: 0
             y = (gridLayout?.getChildAt(i)?.y?.roundToInt()
-                ?: 0) + (topInset - CommonUtils.translateHeight(context))
-            height = gridLayout?.getChildAt(i)?.height?.toFloat() ?: 0f
-            width = (gridLayout?.getChildAt(i))?.width?.toFloat() ?: 0f
+                ?: 0) + (topInset - VgGiftStripeUtils.translateHeight(context))
+            height = (gridLayout?.getChildAt(i)?.height?.toFloat() ?: 0f) - VgGiftStripeUtils.textHeight(
+                context
+            )
+            width = ((gridLayout?.getChildAt(i))?.width?.toFloat() ?: 0f)
             tempPoint = tempPoint?.copy(second = GiftDimension(x, y, height, width)) ?: Pair(
                 GiftDimension(),
                 GiftDimension(x, y, height, width)
@@ -253,19 +251,19 @@ class VirtualGiftingListContainer @JvmOverloads constructor(
      * @param onDismiss It's a boolean indicator indicating the trigger point if it is true it is coming from performDrag event other wise from onDismiss event
      */
     private fun animateCurrentHeight(dragFraction: Float, onDismiss: Boolean) {
-        val currentHeight = CommonUtils.lerp(
-            start = originalHeight.toInt(),
-            stop = targetThreshold.toInt(),
+        val currentHeight = VgGiftStripeUtils.lerp(
+            start = originalHeight,
+            stop = targetThreshold,
             fraction = dragFraction
         )
-        if(!onDismiss) {
+        if (!onDismiss) {
             updateLayoutParams {
-                this.height = currentHeight
+                this.height = currentHeight.toInt()
             }
-        }else{
+        } else {
             animateHeight(
                 currentHeight = layoutParams.height,
-                targetHeight = currentHeight
+                targetHeight = currentHeight.toInt()
             )
         }
     }
@@ -276,7 +274,9 @@ class VirtualGiftingListContainer @JvmOverloads constructor(
     private fun animateHorizontalRecyclerView(dragFraction: Float, onDismiss: Boolean) {
         val firstVisibleItem = layoutManager.findFirstVisibleItemPosition()
         val lastItemPosition = layoutManager.findLastVisibleItemPosition() + 1
-        val topDeckLastItem = firstVisibleItem + column
+        if(horizontalRecyclerView.alpha == 0f){
+            horizontalRecyclerView.alpha = 1f
+        }
         for (i in firstVisibleItem until lastItemPosition) {
             val viewHolder =
                 horizontalRecyclerView.findViewHolderForAdapterPosition(i) as GiftViewHolder
@@ -291,6 +291,7 @@ class VirtualGiftingListContainer @JvmOverloads constructor(
                 )
             }
         }
+
     }
 
     /**
@@ -298,8 +299,8 @@ class VirtualGiftingListContainer @JvmOverloads constructor(
      * If user drags the horizontal recycler view to a position from where you can't map the items to the specific grid item then only this animation will be done
      * */
     private fun crossFadeAnimation(dragFraction: Float, onDismiss: Boolean) {
-        val alphaHVg = CommonUtils.lerp(start = 1f, stop = 0f, fraction = dragFraction)
-        val alphaGridVG = CommonUtils.lerp(start = 0f, stop = 1f, fraction = dragFraction)
+        val alphaHVg = VgGiftStripeUtils.lerp(start = 1f, stop = 0f, fraction = dragFraction)
+        val alphaGridVG = VgGiftStripeUtils.lerp(start = 0f, stop = 1f, fraction = dragFraction)
         if (onDismiss.not()) {
             horizontalRecyclerView.apply {
                 alpha = alphaHVg
@@ -323,18 +324,30 @@ class VirtualGiftingListContainer @JvmOverloads constructor(
      * It's for animating the grid viewPager based on the drag fraction
      */
     private fun animateGridLayoutRecyclerView(dragFraction: Float, onDismiss: Boolean) {
-        val alphaGrid = CommonUtils.lerp(start = 0f, stop = 1f, fraction = dragFraction)
-        if (onDismiss.not()) {
-            gridViewPager.apply {
-                alpha = alphaGrid
-            }
-        } else {
+        val alphaGrid = VgGiftStripeUtils.lerp(start = 0f, stop = 1f, fraction = dragFraction)
+        if(onDismiss){
             gridViewPager
                 .animate()
                 .alpha(alphaGrid)
+                .withEndAction {
+                    fadeOutHRCV(dragFraction)
+                }
                 .start()
+        }else{
+            if(gridViewPager.alpha == 1f){
+                gridViewPager.alpha = 0f
+            }
         }
     }
+
+    private fun fadeOutHRCV(dragFraction: Float){
+        val alphaHRV = VgGiftStripeUtils.lerp(start = 1f, stop = 0f, fraction = dragFraction)
+        horizontalRecyclerView
+            .animate()
+            .alpha(alphaHRV)
+            .start()
+    }
+
 
     override fun toString(): String {
         return "VirtualGiftingListContainer"

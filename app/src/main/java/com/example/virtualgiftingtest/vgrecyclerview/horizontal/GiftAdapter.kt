@@ -3,16 +3,11 @@ package com.example.virtualgiftingtest.vgrecyclerview.horizontal
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import com.example.virtualgiftingtest.GiftData
-import com.example.virtualgiftingtest.Logger
-import com.example.virtualgiftingtest.R
 import com.example.virtualgiftingtest.databinding.GiftItemBinding
 import com.example.virtualgiftingtest.vgrecyclerview.GiftRecyclerViewAdapter
 
 class GiftAdapter: GiftRecyclerViewAdapter<GiftViewHolder>(){
     private var data:List<GiftData> = listOf()
-    companion object{
-        const val DEFAULT_VIEW_TYPE = 0
-    }
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): GiftViewHolder {
         val giftBinding = GiftItemBinding.inflate(LayoutInflater.from(parent.context),parent,false)
         return GiftViewHolder(giftBinding)

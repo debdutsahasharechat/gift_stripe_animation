@@ -5,8 +5,8 @@ import android.content.Context
 import android.util.AttributeSet
 import android.view.MotionEvent
 import android.widget.FrameLayout
-import com.example.virtualgiftingtest.Constants.DISMISS_THRESHOLD
-import com.example.virtualgiftingtest.Constants.VIEW_COUNT
+import com.example.virtualgiftingtest.VgGiftStripeConstant.DISMISS_THRESHOLD
+import com.example.virtualgiftingtest.VgGiftStripeConstant.VIEW_COUNT
 import kotlin.math.abs
 
 abstract class VirtualGiftingTouchHelper @JvmOverloads constructor(

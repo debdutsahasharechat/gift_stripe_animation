@@ -9,10 +9,10 @@ import android.view.animation.AccelerateDecelerateInterpolator
 import android.view.animation.Interpolator
 import android.widget.GridLayout
 import androidx.core.view.updateLayoutParams
-import com.example.virtualgiftingtest.Constants.DEFAULT_ROW_COUNT
+import com.example.virtualgiftingtest.VgGiftStripeConstant.DEFAULT_ROW_COUNT
 import kotlin.math.roundToInt
 
-object CommonUtils {
+object VgGiftStripeUtils {
     fun targetThreshold(context: Context,rowCount: Int = DEFAULT_ROW_COUNT):Int{
         return calculateTargetHeight(context,rowCount)
     }
@@ -49,7 +49,7 @@ object CommonUtils {
     fun maxElements(column:Int,row:Int):Int{
         return column*row
     }
-    private fun textHeight(context: Context):Int{
+    fun textHeight(context: Context):Int{
         return context.dimen(R.dimen.virtual_gift_item_text_height)
     }
     private fun calculateTargetHeight(context: Context, rowCount:Int):Int{

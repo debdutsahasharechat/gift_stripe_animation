@@ -15,7 +15,7 @@ class MainActivity : AppCompatActivity() {
         val giftView = findViewById<VirtualGiftingListContainer>(R.id.gift_container)
         giftView.setData(data = buildList {
             for(i in 0 until 20){
-                add(GiftData(image = R.drawable.ic_launcher_background, uniqueId = i.toString()))
+                add(GiftData(image = R.drawable.ic_launcher_background))
             }
         })
     }
