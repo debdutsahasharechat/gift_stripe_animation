@@ -47,6 +47,9 @@ class VirtualGiftingListContainer @JvmOverloads constructor(
         }
     }
 
+    private var lastDragFraction = 0f
+
+
     /********************** Data part **************************************/
     private lateinit var giftData: List<GiftData>
     private var column = DEFAULT_COLUMN_COUNT
@@ -281,8 +284,12 @@ class VirtualGiftingListContainer @JvmOverloads constructor(
     private fun animateHorizontalRecyclerView(dragFraction: Float, onDismiss: Boolean) {
         val firstVisibleItem = layoutManager.findFirstVisibleItemPosition()
         val lastItemPosition = layoutManager.findLastVisibleItemPosition() + 1
-        if(horizontalRecyclerView.alpha == 0f){
+        if(horizontalRecyclerView.alpha == 0f && lastDragFraction != dragFraction){
             horizontalRecyclerView.alpha = 1f
+            lastDragFraction = dragFraction
+        }
+        if(onDismiss){
+            lastDragFraction = if(dragFraction < DISMISS_THRESHOLD) 0f else 1f
         }
         for (i in firstVisibleItem until lastItemPosition) {
             val viewHolder =
@@ -307,6 +314,7 @@ class VirtualGiftingListContainer @JvmOverloads constructor(
     private fun animateGridLayoutRecyclerView(dragFraction: Float, onDismiss: Boolean) {
         val alphaGrid = VgGiftStripeUtils.lerp(start = 0f, stop = 1f, fraction = dragFraction)
         if(onDismiss){
+            lastDragFraction = if(dragFraction < DISMISS_THRESHOLD) 0f else 1f
             gridViewPager
                 .animate()
                 .alpha(alphaGrid)
@@ -314,9 +322,11 @@ class VirtualGiftingListContainer @JvmOverloads constructor(
                     fadeOutHRCV(dragFraction)
                 }
                 .start()
-        }else{
-            if(gridViewPager.alpha == 1f){
+        }
+        else{
+            if(gridViewPager.alpha == 1f && lastDragFraction != dragFraction){
                 gridViewPager.alpha = 0f
+                lastDragFraction = dragFraction
             }
         }
     }

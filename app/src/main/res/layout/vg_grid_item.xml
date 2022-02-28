@@ -16,17 +16,33 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintHorizontal_chainStyle="packed"
         />
-    <TextView
-        android:id="@+id/grid_coin_item"
+    <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="@dimen/virtual_gift_item_text_height"
-        android:text="ABCD"
-        android:textSize="12sp"
-        android:layout_gravity="center"
-        app:layout_constraintVertical_bias="0"
         app:layout_constraintTop_toBottomOf="@+id/grid_image_item"
         app:layout_constraintStart_toStartOf="@+id/grid_image_item"
         app:layout_constraintEnd_toEndOf="@+id/grid_image_item"
+        app:layout_constraintVertical_bias="0"
         app:layout_constraintBottom_toBottomOf="parent"
+        android:orientation="horizontal"
+        >
+    <ImageView
+        android:id="@+id/grid_coin_image"
+        android:layout_width="@dimen/virtual_gift_coin_image_dimen"
+        android:layout_height="@dimen/virtual_gift_coin_image_dimen"
+        android:scaleType="fitCenter"
+        android:layout_gravity="center"
         />
+    <TextView
+        android:id="@+id/grid_coin_item"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:text="ABCD"
+        android:textSize="12sp"
+        android:layout_marginStart="10dp"
+        android:layout_gravity="center"
+        android:gravity="center"
+        android:textAlignment="center"
+        />
+    </LinearLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

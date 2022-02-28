@@ -1,5 +1,6 @@
 package com.example.virtualgiftingtest.vgrecyclerview.horizontal
 
+import com.bumptech.glide.Glide
 import com.example.virtualgiftingtest.VgGiftStripeUtils
 import com.example.virtualgiftingtest.GiftData
 import com.example.virtualgiftingtest.GiftDimension
@@ -11,7 +12,11 @@ class GiftViewHolder(private val itemBinding: GiftItemBinding) :
     fun onBind(data: GiftData) {
         itemBinding.root.pivotX = 0f
         itemBinding.root.pivotY = 0f
-        itemBinding.itemImageView.setImageResource(data.image)
+        Glide
+            .with(itemBinding.root.context)
+            .load(data.image)
+            .fitCenter()
+            .into(itemBinding.itemImageView)
     }
 
     fun animate(startPoint: GiftDimension, endPoint: GiftDimension, dragFraction: Float,onDismiss:Boolean) {
@@ -36,7 +41,6 @@ class GiftViewHolder(private val itemBinding: GiftItemBinding) :
                 .apply {
                     x = xPos.toFloat()
                     translationY = -yPos.toFloat()
-                    //alpha = alphaVG
                     scaleX = scaleXVG
                     scaleY = scaleYVG
                 }
@@ -47,7 +51,6 @@ class GiftViewHolder(private val itemBinding: GiftItemBinding) :
                     animate()
                     .x(xPos.toFloat())
                     .translationY(-yPos.toFloat())
-                    //.alpha(alphaVG)
                     .scaleX(scaleXVG)
                     .scaleY(scaleYVG)
                     .start()
