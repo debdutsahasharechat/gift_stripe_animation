@@ -118,7 +118,7 @@ class VirtualGiftingListContainer @JvmOverloads constructor(
 
     /******************************* Clean up logic ***********************************/
     private fun cleanUpListener(){
-        
+
     }
 
     /*********************************** Drag Logic ************************************/
