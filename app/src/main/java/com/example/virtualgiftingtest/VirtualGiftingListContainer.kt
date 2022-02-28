@@ -42,8 +42,8 @@ class VirtualGiftingListContainer @JvmOverloads constructor(
 
     private val scrollListener = object : RecyclerView.OnScrollListener() {
         override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
-            super.onScrollStateChanged(recyclerView, newState)
             invalidateHRecyclerView(isScrolling = true)
+            super.onScrollStateChanged(recyclerView, newState)
         }
     }
 
@@ -67,13 +67,13 @@ class VirtualGiftingListContainer @JvmOverloads constructor(
             ).apply {
                 gravity = Gravity.BOTTOM
             }
+            clipChildren = false
             addOnScrollListener(scrollListener)
         }
         gridViewPager = ViewPager2(context).apply {
             layoutParams =
                 LayoutParams(LayoutParams.MATCH_PARENT, VgGiftStripeUtils.viewPagerHeight(context))
             alpha = 0f
-            //visibility = View.INVISIBLE
         }
         targetThreshold = VgGiftStripeUtils.targetThreshold(context).toFloat()
         addView(gridViewPager)
@@ -100,6 +100,11 @@ class VirtualGiftingListContainer @JvmOverloads constructor(
         gridViewPager.adapter = gridAdapter
     }
 
+    override fun onDetachedFromWindow() {
+        super.onDetachedFromWindow()
+        cleanUpListener()
+    }
+
     /********************************** Setters ****************************************/
 
     /**
@@ -112,7 +117,9 @@ class VirtualGiftingListContainer @JvmOverloads constructor(
     }
 
     /******************************* Clean up logic ***********************************/
-
+    private fun cleanUpListener(){
+        
+    }
 
     /*********************************** Drag Logic ************************************/
     /**
@@ -162,12 +169,12 @@ class VirtualGiftingListContainer @JvmOverloads constructor(
         }
         val firstVisibleItem = layoutManager.findFirstVisibleItemPosition()
         val lastItemPosition = layoutManager.findLastVisibleItemPosition() + 1
-        val topDeckLastItem = firstVisibleItem + column
-        val restOfDecCount = (lastItemPosition - topDeckLastItem)
         isAnimationPossible = (firstVisibleItem % VgGiftStripeUtils.maxElements(column, rowCount) == 0)
         val currentPage = firstVisibleItem.div(VgGiftStripeUtils.maxElements(column, rowCount))
         if (currentPage != gridViewPager.currentItem) {
             gridViewPager.setCurrentItem(currentPage, false)
+            isGridLayoutMeasureDone = false
+            invalidateGridLayout()
         }
         var data: GiftData
         var tempPoint: Pair<GiftDimension, GiftDimension>?
@@ -295,32 +302,6 @@ class VirtualGiftingListContainer @JvmOverloads constructor(
     }
 
     /**
-     * It's a fallback animation when the actual animation is not possible
-     * If user drags the horizontal recycler view to a position from where you can't map the items to the specific grid item then only this animation will be done
-     * */
-    private fun crossFadeAnimation(dragFraction: Float, onDismiss: Boolean) {
-        val alphaHVg = VgGiftStripeUtils.lerp(start = 1f, stop = 0f, fraction = dragFraction)
-        val alphaGridVG = VgGiftStripeUtils.lerp(start = 0f, stop = 1f, fraction = dragFraction)
-        if (onDismiss.not()) {
-            horizontalRecyclerView.apply {
-                alpha = alphaHVg
-            }
-            gridViewPager.apply {
-                alpha = alphaGridVG
-            }
-        } else {
-            horizontalRecyclerView
-                .animate()
-                .alpha(alphaHVg)
-                .start()
-            gridViewPager
-                .animate()
-                .alpha(alphaGridVG)
-                .start()
-        }
-    }
-
-    /**
      * It's for animating the grid viewPager based on the drag fraction
      */
     private fun animateGridLayoutRecyclerView(dragFraction: Float, onDismiss: Boolean) {
@@ -347,6 +328,34 @@ class VirtualGiftingListContainer @JvmOverloads constructor(
             .alpha(alphaHRV)
             .start()
     }
+
+    /**
+     * It's a fallback animation when the actual animation is not possible
+     * If user drags the horizontal recycler view to a position from where you can't map the items to the specific grid item then only this animation will be done
+     * */
+    private fun crossFadeAnimation(dragFraction: Float, onDismiss: Boolean) {
+        val alphaHVg = VgGiftStripeUtils.lerp(start = 1f, stop = 0f, fraction = dragFraction)
+        val alphaGridVG = VgGiftStripeUtils.lerp(start = 0f, stop = 1f, fraction = dragFraction)
+        if (onDismiss.not()) {
+            horizontalRecyclerView.apply {
+                alpha = alphaHVg
+            }
+            gridViewPager.apply {
+                alpha = alphaGridVG
+            }
+        } else {
+            horizontalRecyclerView
+                .animate()
+                .alpha(alphaHVg)
+                .start()
+            gridViewPager
+                .animate()
+                .alpha(alphaGridVG)
+                .start()
+        }
+    }
+
+
 
 
     override fun toString(): String {

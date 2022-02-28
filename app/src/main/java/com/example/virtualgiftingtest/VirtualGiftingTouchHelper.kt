@@ -8,6 +8,7 @@ import android.widget.FrameLayout
 import com.example.virtualgiftingtest.VgGiftStripeConstant.DISMISS_THRESHOLD
 import com.example.virtualgiftingtest.VgGiftStripeConstant.VIEW_COUNT
 import kotlin.math.abs
+import kotlin.properties.Delegates
 
 abstract class VirtualGiftingTouchHelper @JvmOverloads constructor(
     context: Context,
@@ -22,6 +23,7 @@ abstract class VirtualGiftingTouchHelper @JvmOverloads constructor(
     var topInset:Int = 0
     var totalDrag = 0f
     private var onLayoutTime = 1 //How many time on layout triggers here it's 2 because 2 views are being added to the view group
+    private var pointerId by Delegates.notNull<Int>()
 
     /**
      * Here just calculating the topInset and the original height of the frame layout for future usage
@@ -44,14 +46,15 @@ abstract class VirtualGiftingTouchHelper @JvmOverloads constructor(
      * Based on the condition we are deciding whether we need to consume the touch event or not
      */
     override fun onInterceptTouchEvent(ev: MotionEvent?): Boolean {
+        pointerId = ev?.getPointerId(0) ?: 0
         when (ev?.actionMasked) {
             MotionEvent.ACTION_DOWN -> {
-                initialTouchX = ev.rawX
-                initialTouchY = ev.rawY
+                initialTouchX = ev.getX(pointerId)
+                initialTouchY = ev.getY(pointerId)
             }
             MotionEvent.ACTION_UP -> {
-                val finalY = ev.rawY
-                val finalX = ev.rawX
+                val finalY = ev.getY(pointerId)
+                val finalX = ev.getX(pointerId)
                 val distanceX = initialTouchX - finalX
                 val distanceY = initialTouchY - finalY
                 //Up and down swipe gesture
@@ -62,8 +65,8 @@ abstract class VirtualGiftingTouchHelper @JvmOverloads constructor(
                 }
             }
             MotionEvent.ACTION_MOVE->{
-                val finalY = ev.rawY
-                val finalX = ev.rawX
+                val finalY = ev.getY(pointerId)
+                val finalX = ev.getX(pointerId)
                 val distanceX = initialTouchX - finalX
                 val distanceY = initialTouchY - finalY
                 //Up and down swipe gesture
@@ -85,7 +88,7 @@ abstract class VirtualGiftingTouchHelper @JvmOverloads constructor(
      */
     @SuppressLint("ClickableViewAccessibility")
     override fun onTouchEvent(event: MotionEvent?): Boolean {
-        val finalY = event?.rawY?:0f
+        val finalY = event?.getY(pointerId)?:0f
         when(event?.actionMasked){
             MotionEvent.ACTION_MOVE->{
                 performDrag(drag = (initialTouchY-finalY))
