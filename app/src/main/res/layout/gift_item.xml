@@ -7,10 +7,14 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <ImageView
         android:id="@+id/itemImageView"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_width="0dp"
+        android:layout_height="@dimen/virtual_gift_item_collapsed"
+        android:maxWidth="@dimen/virtual_gift_item_expanded"
+        android:maxHeight="@dimen/virtual_gift_item_expanded"
+        android:scaleType="fitXY"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
         />
 </androidx.constraintlayout.widget.ConstraintLayout>

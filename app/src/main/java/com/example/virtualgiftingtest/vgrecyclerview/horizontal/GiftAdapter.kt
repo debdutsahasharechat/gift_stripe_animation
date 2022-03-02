@@ -24,4 +24,7 @@ class GiftAdapter: GiftRecyclerViewAdapter<GiftViewHolder>(){
         this.data = data
         notifyDataSetChanged()
     }
+    fun getGiftId(uniqueId:String){
+
+    }
 }

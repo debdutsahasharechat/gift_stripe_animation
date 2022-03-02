@@ -9,8 +9,8 @@
         android:id="@+id/grid_image_item"
         android:layout_width="0dp"
         android:layout_height="@dimen/virtual_gift_item_expanded"
-        android:scaleType="centerCrop"
-        android:layout_gravity="center"
+        android:maxWidth="@dimen/virtual_gift_item_expanded"
+        android:maxHeight="@dimen/virtual_gift_item_expanded"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toTopOf="parent"
@@ -30,7 +30,6 @@
         android:id="@+id/grid_coin_image"
         android:layout_width="@dimen/virtual_gift_coin_image_dimen"
         android:layout_height="@dimen/virtual_gift_coin_image_dimen"
-        android:scaleType="fitCenter"
         android:layout_gravity="center"
         />
     <TextView

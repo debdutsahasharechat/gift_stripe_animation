@@ -19,15 +19,12 @@ class GiftGridViewHolder(val view: GiftGridContainerView) : GiftBaseViewHolder(v
             Glide
                 .with(view.context)
                 .load(data[it].image)
-                .fitCenter()
                 .into(giftGridView.gridImageItem)
             Glide
                 .with(view.context)
                 .load(data[it].coinImage)
-                .fitCenter()
                 .into(giftGridView.gridCoinImage)
             giftGridView.gridCoinItem.text = data[it].coin.toString()
-
             view.addView(giftGridView.root,layoutParams)
         }
     }

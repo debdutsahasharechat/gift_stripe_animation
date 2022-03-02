@@ -4,6 +4,7 @@ import com.bumptech.glide.Glide
 import com.example.virtualgiftingtest.VgGiftStripeUtils
 import com.example.virtualgiftingtest.GiftData
 import com.example.virtualgiftingtest.GiftDimension
+import com.example.virtualgiftingtest.Logger
 import com.example.virtualgiftingtest.databinding.GiftItemBinding
 import com.example.virtualgiftingtest.vgrecyclerview.GiftBaseViewHolder
 
@@ -15,16 +16,14 @@ class GiftViewHolder(private val itemBinding: GiftItemBinding) :
         Glide
             .with(itemBinding.root.context)
             .load(data.image)
-            .fitCenter()
             .into(itemBinding.itemImageView)
     }
 
-    fun animate(startPoint: GiftDimension, endPoint: GiftDimension, dragFraction: Float,onDismiss:Boolean) {
+    fun animate(startPoint: GiftDimension, endPoint: GiftDimension, dragFraction: Float,onDismiss:Boolean,afterAnimation:(Int,Float)->Unit) {
         val xPos =
             VgGiftStripeUtils.lerp(start = startPoint.x, stop = endPoint.x, fraction = dragFraction)
         val yPos =
             VgGiftStripeUtils.lerp(start = 0, stop = (startPoint.y - endPoint.y), fraction = dragFraction)
-        val alphaVG = VgGiftStripeUtils.lerp(start = 1f, stop = 0f, fraction = dragFraction)
         val scaleYVG = VgGiftStripeUtils.lerp(
             start = 1f,
             stop = endPoint.height.div(startPoint.height),
@@ -35,6 +34,7 @@ class GiftViewHolder(private val itemBinding: GiftItemBinding) :
             stop = endPoint.width.div(startPoint.width),
             fraction = dragFraction
         )
+        Logger.d("SCALING: $scaleXVG $scaleYVG ${endPoint.height} ${startPoint.height}")
         if(onDismiss.not()) {
             itemBinding
                 .root
@@ -49,6 +49,9 @@ class GiftViewHolder(private val itemBinding: GiftItemBinding) :
                 .root
                 .apply {
                     animate()
+                    .withEndAction {
+                        afterAnimation.invoke(adapterPosition,dragFraction)
+                    }
                     .x(xPos.toFloat())
                     .translationY(-yPos.toFloat())
                     .scaleX(scaleXVG)
