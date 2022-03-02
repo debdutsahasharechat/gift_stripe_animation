@@ -4,6 +4,7 @@ package com.example.virtualgiftingtest
 import android.content.Context
 import android.util.AttributeSet
 import android.view.*
+import android.widget.ImageView
 import androidx.core.view.updateLayoutParams
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -287,13 +288,14 @@ class VirtualGiftingListContainer @JvmOverloads constructor(
             currentIndex = (currentPage * elementPerPage) + i
             data = giftData[currentIndex]
             tempPoint = mapOfStartAndEndPoint[data.uniqueId]
-            x = gridLayout?.getChildAt(i)?.x?.roundToInt() ?: 0
-            y = (gridLayout?.getChildAt(i)?.y?.roundToInt()
-                ?: 0) + (topInset - VgGiftStripeUtils.translateHeight(context))
-            height = (gridLayout?.getChildAt(i)?.height?.toFloat() ?: 0f) - VgGiftStripeUtils.textHeight(
-                context
-            )
-            width = ((gridLayout?.getChildAt(i))?.width?.toFloat() ?: 0f)
+            val containerView = gridLayout?.getChildAt(i)
+            val imageView = containerView?.findViewById(R.id.grid_image_item) as? ImageView
+
+            x = containerView?.x?.roundToInt()?.plus(imageView?.x?.roundToInt() ?: 0) ?: 0
+            val absoluteYPosition = containerView?.y?.roundToInt()?.plus(imageView?.y?.roundToInt() ?: 0) ?: 0
+            y = absoluteYPosition + (topInset - VgGiftStripeUtils.translateHeight(context))
+            height = (imageView?.height?.toFloat() ?: 0f)
+            width = (imageView?.width?.toFloat() ?: 0f)
             tempPoint = tempPoint?.copy(second = GiftDimension(x, y, height, width)) ?: Pair(
                 GiftDimension(),
                 GiftDimension(x, y, height, width)
@@ -335,6 +337,7 @@ class VirtualGiftingListContainer @JvmOverloads constructor(
     private fun animateHorizontalRecyclerView(dragFraction: Float, onDismiss: Boolean) {
         val firstVisibleItem = layoutManager.findFirstVisibleItemPosition()
         val lastItemPosition = layoutManager.findLastVisibleItemPosition() + 1
+        val maxElementsToAnimate = firstVisibleItem+VgGiftStripeUtils.maxElements(column,rowCount)
         if(horizontalRecyclerView.alpha == 0f && lastDragFraction != dragFraction){
             horizontalRecyclerView.alpha = 1f
             lastDragFraction = dragFraction
@@ -342,7 +345,7 @@ class VirtualGiftingListContainer @JvmOverloads constructor(
         if(onDismiss){
             lastDragFraction = if(dragFraction < DISMISS_THRESHOLD) 0f else 1f
         }
-        for (i in firstVisibleItem until lastItemPosition) {
+        for (i in firstVisibleItem until lastItemPosition.coerceAtMost(maxElementsToAnimate)) {
             Logger.d("FirstVisibleItem: $firstVisibleItem LastVisibleItem: $lastItemPosition")
             val viewHolder =
                 horizontalRecyclerView.findViewHolderForAdapterPosition(i) as GiftViewHolder
@@ -358,6 +361,20 @@ class VirtualGiftingListContainer @JvmOverloads constructor(
                 )
             }
         }
+        //So more items is still there but we can't animate them so need to fade out those view holders
+        if(lastItemPosition>maxElementsToAnimate){
+            for(i in maxElementsToAnimate until lastItemPosition){
+                val viewHolder =
+                    horizontalRecyclerView.findViewHolderForAdapterPosition(i) as GiftViewHolder
+                val data = giftData[i]
+                val pair = mapOfStartAndEndPoint[data.uniqueId]
+                pair?.let {
+                    viewHolder.fadingOut(
+                        dragFraction = dragFraction
+                    )
+                }
+            }
+        }
 
     }
 
@@ -365,7 +382,9 @@ class VirtualGiftingListContainer @JvmOverloads constructor(
      * It will only animate the fade in effect of the viewpager
      */
     private fun animationEndHorizontalRCV(position:Int,dragFraction: Float){
-        val lastItemPos = layoutManager.findLastVisibleItemPosition()
+        val firstVisibleItem = layoutManager.findFirstVisibleItemPosition()
+        val maxElementsToAnimate = firstVisibleItem+VgGiftStripeUtils.maxElements(column,rowCount)
+        val lastItemPos = layoutManager.findLastVisibleItemPosition().coerceAtMost(maxElementsToAnimate)-1
         if(position == lastItemPos){
             animateGridLayoutRecyclerView(dragFraction = dragFraction, onDismiss = true)
         }

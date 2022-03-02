@@ -13,6 +13,7 @@ class GiftViewHolder(private val itemBinding: GiftItemBinding) :
     fun onBind(data: GiftData) {
         itemBinding.root.pivotX = 0f
         itemBinding.root.pivotY = 0f
+        itemBinding.root.clipToPadding = false
         Glide
             .with(itemBinding.root.context)
             .load(data.image)
@@ -59,5 +60,14 @@ class GiftViewHolder(private val itemBinding: GiftItemBinding) :
                     .start()
                 }
         }
+    }
+
+    fun fadingOut(dragFraction: Float){
+        val alphaVG = VgGiftStripeUtils.lerp(start = 1f, stop = 0f, fraction = dragFraction)
+        itemBinding
+            .root
+            .apply {
+                alpha = alphaVG
+            }
     }
 }
