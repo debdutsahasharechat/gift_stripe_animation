@@ -21,7 +21,7 @@ class MainActivity : AppCompatActivity() {
         )
         giftView.setData(data = buildList {
             for(i in 0 until 28){
-                add(GiftData(image = listOfUrls.random()?:"", uniqueId = i.toString(), coin = Random().nextInt(200), coinImage = "https://cdn.sharechat.com/react-native-assets/virtual-gifting/coin-active.png"))
+                add(GiftData(image = listOfUrls.random()?:"", coin = Random().nextInt(200), coinImage = "https://cdn.sharechat.com/react-native-assets/virtual-gifting/coin-active.png"))
             }
         })
     }

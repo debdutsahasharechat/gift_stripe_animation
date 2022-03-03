@@ -73,6 +73,13 @@ class VirtualGiftingListContainer @JvmOverloads constructor(
 
     /************************* Initialization Part **********************************/
     init {
+        val typedArray =
+            context.theme.obtainStyledAttributes(attributeSet,R.styleable.VirtualGiftingListContainer,0,0)
+        column = typedArray.getInteger(
+            R.styleable.VirtualGiftingListContainer_vgs_column,
+            DEFAULT_COLUMN_COUNT
+        )
+        typedArray.recycle()
         clipChildren = false
         horizontalRecyclerView = RecyclerView(context).apply {
             layoutParams = LayoutParams(
@@ -186,8 +193,8 @@ class VirtualGiftingListContainer @JvmOverloads constructor(
         val currentFirstVisibleItem = layoutManager.findFirstVisibleItemPosition()
         if (currentFirstVisibleItem != firstVisibleItem && currentFirstVisibleItem >= 0 && state == GiftStripeState.EXPANDED) {
             resetRecyclerView()
-            layoutManager.scrollToPositionWithOffset(firstVisibleItem,0)
-            CoroutineScope(Dispatchers.Main).launch{
+            layoutManager.scrollToPositionWithOffset(firstVisibleItem, 0)
+            CoroutineScope(Dispatchers.Main).launch {
                 isGridLayoutMeasureDone = false
                 invalidateHRecyclerView(isScrolling = true)
                 invalidateGridLayout()
@@ -349,6 +356,7 @@ class VirtualGiftingListContainer @JvmOverloads constructor(
      * Animating the horizontal recyclerview based on the dragFraction
      */
     private fun animateHorizontalRecyclerView(dragFraction: Float, onDismiss: Boolean) {
+        Logger.d("ANIMATE : $dragFraction ${horizontalRecyclerView.alpha} ${gridViewPager.alpha}")
         val firstVisibleItem = layoutManager.findFirstVisibleItemPosition()
         val lastItemPosition = layoutManager.findLastVisibleItemPosition() + 1
         val maxElementsToAnimate =
@@ -411,29 +419,24 @@ class VirtualGiftingListContainer @JvmOverloads constructor(
      */
     private fun animateGridLayoutRecyclerView(dragFraction: Float, onDismiss: Boolean) {
         val alphaGrid = VgGiftStripeUtils.lerp(start = 0f, stop = 1f, fraction = dragFraction)
+        val alphaHRV = VgGiftStripeUtils.lerp(start = 1f, stop = 0f, fraction = dragFraction)
+
         if (onDismiss) {
             lastDragFraction = if (dragFraction < DISMISS_THRESHOLD) 0f else 1f
             gridViewPager
-                .animate()
-                .alpha(alphaGrid)
-                .withEndAction {
-                    fadeOutHRCV(dragFraction)
+                .apply {
+                    alpha = alphaGrid
                 }
-                .start()
+            horizontalRecyclerView
+                .apply {
+                    alpha = alphaHRV
+                }
         } else {
             if (gridViewPager.alpha == 1f && lastDragFraction != dragFraction) {
                 gridViewPager.alpha = 0f
                 lastDragFraction = dragFraction
             }
         }
-    }
-
-    private fun fadeOutHRCV(dragFraction: Float) {
-        val alphaHRV = VgGiftStripeUtils.lerp(start = 1f, stop = 0f, fraction = dragFraction)
-        horizontalRecyclerView
-            .animate()
-            .alpha(alphaHRV)
-            .start()
     }
 
     /**
@@ -462,6 +465,12 @@ class VirtualGiftingListContainer @JvmOverloads constructor(
         }
     }
 
+    /**
+     * Helper functions for notify once
+     */
+    fun notifyDataSetChanged() {
+
+    }
 
     override fun toString(): String {
         return "VirtualGiftingListContainer"

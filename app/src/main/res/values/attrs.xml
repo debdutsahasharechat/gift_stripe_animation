@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="VirtualGiftingListContainer">
+        <attr name="vgs_column" format="integer"/>
+        <attr name="vgs_str" format="string"/>
+    </declare-styleable>
+</resources>

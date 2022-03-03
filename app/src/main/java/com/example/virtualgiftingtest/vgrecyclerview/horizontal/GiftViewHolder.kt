@@ -35,7 +35,6 @@ class GiftViewHolder(private val itemBinding: GiftItemBinding) :
             stop = endPoint.width.div(startPoint.width),
             fraction = dragFraction
         )
-        Logger.d("SCALING: $scaleXVG $scaleYVG ${endPoint.height} ${startPoint.height}")
         if(onDismiss.not()) {
             itemBinding
                 .root
